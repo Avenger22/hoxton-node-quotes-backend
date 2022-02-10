@@ -1,15 +1,23 @@
 import express from 'express';
+import cors from 'cors'
 import {
     quotes
 } from "./db/db"
+import {Quote} from "./types/types"
 
 const app = express();
-const cors = require('cors');
+// const cors = require('cors');
 app.use(cors());
 const PORT: number = 8000;
 
+
 app.get('/', (req, res) => {
     res.send('Welcome to AlbVitaFitness!!!!, use / and arrays for navigation in the backend server');
+});
+
+app.get('/random', (req, res) => {
+    const randomQuote: Quote = quotes[Math.floor(Math.random() * quotes.length)]
+    res.send(randomQuote);
 });
 
 app.get('/quotes', (req, res) => {
