@@ -4,6 +4,8 @@ import {
 } from "./db/db"
 
 const app = express();
+const cors = require('cors');
+app.use(cors());
 const PORT: number = 8000;
 
 app.get('/', (req, res) => {
