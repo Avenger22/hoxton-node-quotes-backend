@@ -1,6 +1,6 @@
 import {Quote} from "../types/types"
 
-export const quotes:Quote[] = [
+export let quotes:Quote[] = [
     {
         id: 1,
     quote: "Life isn’t about getting and having, it’s about giving and being.",

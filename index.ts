@@ -1,15 +1,16 @@
 // #region 'Importing stuff'
 import express from 'express';
-
 import {
     quotes
 } from "./db/db"
-
 import {Quote} from "./types/types"
 
 const app = express();
 const cors = require('cors');
+
 app.use(cors());
+app.use(express.json());
+
 const PORT: number = 8000;
 // #endregion
 
@@ -60,30 +61,104 @@ app.get('/quotes/:id', (req, res) => {
 
 app.get('/quotes', (req, res) => {
 
-    let quotesToSend = quotes
-    let search = req.query.search as string
+  let quotesToSend = quotes
+  let search = req.query.search as string
+
+  // if (search) {
+  //   quotesToSend = quotesToSend.filter(quote =>
+  //     quote.quote.toUpperCase().includes(search.toUpperCase())
+  //   )
+  // }
+
+  // for (const key in req.query) {
+  //   const query = req.query[key]
+  //   const quoteKeys = Object.keys(quotes[0])
+
+  //   if (quoteKeys.includes(key)) {
+  //     quotesToSend = quotesToSend.filter(
+  //       // @ts-ignore
+  //       quote => String(quote[key]) === query
+  //     )
+  //   }
+  // }
+
+  // const idFrom = Number(req.query.idFrom)
+  // const idTo = Number(req.query.idTo)
+
+  if (typeof search === 'string') {
+
+    console.log('Filtering dogs with search:', search);
+    quotesToSend = quotesToSend.filter((quote) =>
+      quote.firstName.toUpperCase().includes(search.toUpperCase())
+    );
+
+  }
   
-    if (search) {
-      quotesToSend = quotesToSend.filter(quote =>
-        quote.quote.toUpperCase().includes(search.toUpperCase())
-      )
-    }
-  
-    for (const key in req.query) {
-      const query = req.query[key]
-      const quoteKeys = Object.keys(quotes[0])
-  
-      if (quoteKeys.includes(key)) {
-        quotesToSend = quotesToSend.filter(
-          // @ts-ignore
-          quote => String(quote[key]) === query
-        )
-      }
-    }
-  
-    res.send(quotesToSend)
+  res.send(quotesToSend)
 
 })
+
+app.post('/quotes', (req, res) => {
+
+  const firstName = req.body.firstName;
+  const avatar = req.body.avatar;
+  const lastName = req.body.lastName
+  const age = req.body.age
+  const quote = req.body.quote
+
+  const errors = [];
+
+  const lastQuoteId = Math.max(...quotes.map((quote) => quote.id));
+  const newId = lastQuoteId + 1;
+
+  if (typeof firstName !== 'string') {
+    errors.push(`FirstName missing or not a string.`);
+  }
+
+  if (typeof lastName !== 'string') {
+    errors.push(`LastName missing or not a string.`);
+  }
+
+  if (typeof age !== 'number') {
+    errors.push(`Age missing or not a number.`);
+  }
+
+  if (typeof quote !== 'string') {
+    errors.push(`Quote missing or not a string.`);
+  }
+
+  if (typeof avatar !== 'string') {
+    errors.push(`Avatar missing or not a string.`);
+  }
+
+  if (errors.length === 0) {
+
+    const newQuote: Quote = {
+      id: Number(newId),
+      firstName: firstName,
+      lastName: lastName,
+      quote: quote,
+      age: Number(age),
+      avatar: avatar,
+    };
+
+    // add Quote to our quotes array
+    // (like a memory db, this is forgotten when node restarts)
+    
+    quotes.push(newQuote);
+
+    // @ts-ignore
+    // quotes = [...quotes, newQuote]
+
+    res.status(201).send(newQuote);
+
+  } 
+  
+  else {
+    res.status(400).send({ errors: errors });
+  }
+
+});
 // #endregion
 
 app.listen(PORT, () => {
