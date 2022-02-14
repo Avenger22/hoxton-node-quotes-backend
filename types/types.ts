@@ -1,5 +1,8 @@
 export type Quote = {
     id: number,
     quote: string,
-    author: string
+    firstName: string,
+    lastName: string,
+    age: number,
+    avatar: string
 }
