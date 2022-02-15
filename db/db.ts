@@ -1,5 +1,9 @@
 import {Quote} from "../types/types"
 
+export function setQuotes(array) {
+    quotes = array
+}
+
 export let quotes:Quote[] = [
     {
         id: 1,

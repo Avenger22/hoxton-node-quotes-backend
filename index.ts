@@ -1,7 +1,7 @@
 // #region 'Importing stuff'
 import express from 'express';
 import {
-    quotes
+    quotes, setQuotes
 } from "./db/db"
 import {Quote} from "./types/types"
 
@@ -156,6 +156,64 @@ app.post('/quotes', (req, res) => {
   
   else {
     res.status(400).send({ errors: errors });
+  }
+
+});
+
+app.delete('/quotes/:id', (req, res) => {
+
+  // happy path: id is sent and it's a number and we find the dog and we delete the dog
+  // sad path: id is wrong format, or dog not found
+
+  // get id
+  const id = Number(req.params.id);
+
+  // find dog
+  const match = quotes.find((quote) => quote.id === id);
+
+  // delete dog if it exists
+  if (match) {
+    const quotesFilteredDeleted = quotes.filter((quote) => quote.id !== id);
+    setQuotes(quotesFilteredDeleted)
+    res.send({ message: 'Quote deleted successfully.' });
+  } 
+
+  else {
+    res.status(404).send({ error: 'Quote not found.' });
+  }
+
+});
+
+app.patch('/quotes/:id', (req, res) => {
+
+  const id = Number(req.params.id);
+
+  // update keys from an existing resource
+  // we only update existing keys
+  // keys that are not in the resource should be ignored
+  // or we should send the user an error
+  // send back the updated resource
+
+  // happy path: every key given exists and is the right type // ✅
+  // sad path: wrong keys or wrong types provided by user // ❌
+
+  const quoteToChange = quotes.find((quote) => quote.id === id);
+
+  if (quoteToChange) {
+
+    // we can only change the item if it exists
+    if (typeof req.body.firstName === 'string')  quoteToChange.firstName = req.body.firstName;
+    if (typeof req.body.lastName === 'string') quoteToChange.lastName = req.body.lastName;
+    if (typeof req.body.avatar === 'string') quoteToChange.avatar = req.body.avatar;
+    if (typeof req.body.quote === 'string') quoteToChange.quote = req.body.quote;
+    if (typeof req.body.age === 'number') quoteToChange.age = req.body.age;
+    
+    res.send(quoteToChange);
+
+  } 
+  
+  else {
+    res.status(404).send({ error: 'quote not found, id is now in db.' });
   }
 
 });
