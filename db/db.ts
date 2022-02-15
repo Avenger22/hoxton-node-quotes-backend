@@ -1,6 +1,6 @@
 import {Quote} from "../types/types"
 
-export function setQuotes(array) {
+export function setQuotes(array:Quote[]):void {
     quotes = array
 }
 

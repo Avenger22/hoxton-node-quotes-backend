@@ -217,6 +217,30 @@ app.patch('/quotes/:id', (req, res) => {
   }
 
 });
+
+app.put('/quotes/:id', (req, res) => {
+
+  const id = Number(req.params.id);
+  const quoteToChange = quotes.find((quote) => quote.id === id);
+
+  if (quoteToChange) {
+
+    // we can only change the item if it exists
+    if (typeof req.body.firstName === 'string')  quoteToChange.firstName = req.body.firstName;
+    if (typeof req.body.lastName === 'string') quoteToChange.lastName = req.body.lastName;
+    if (typeof req.body.avatar === 'string') quoteToChange.avatar = req.body.avatar;
+    if (typeof req.body.quote === 'string') quoteToChange.quote = req.body.quote;
+    if (typeof req.body.age === 'number') quoteToChange.age = req.body.age;
+    
+    res.send(quoteToChange);
+
+  } 
+  
+  else {
+    res.status(404).send({ error: 'quote not found, id is now in db.' });
+  }
+
+});
 // #endregion
 
 app.listen(PORT, () => {
