@@ -173,9 +173,11 @@ app.delete('/quotes/:id', (req, res) => {
 
   // delete dog if it exists
   if (match) {
+
     const quotesFilteredDeleted = quotes.filter((quote) => quote.id !== id);
     setQuotes(quotesFilteredDeleted)
-    res.send({ message: 'Quote deleted successfully.' });
+    res.send(match);
+    
   } 
 
   else {
