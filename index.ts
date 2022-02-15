@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/db', (req,res) => {
-  const db = [quotes, authors]
+  const db = {"quotes": quotes, "authors": authors}
   res.send(db)
 })
 
