@@ -83,19 +83,38 @@ router.post('/', (req, res) => {
   
 router.get('/', (req, res) => {
 
-  let authorsToSend = authors
-  let search = req.query.search as string
+  if (req.query.search) {
 
-  if (typeof search === 'string') {
+    let authorsToSend = authors
+    let search = req.query.search as string
 
-    console.log('Filtering dogs with search:', search);
-    authorsToSend = authorsToSend.filter((author) =>
-      author.firstName.toUpperCase().includes(search.toUpperCase())
-    );
+    if (typeof search === 'string') {
+
+      console.log('Filtering authors with search:', search);
+      authorsToSend = authorsToSend.filter((author) =>
+        author.firstName.toUpperCase().includes(search.toUpperCase())
+      );
+
+    }
+
+    res.send(authorsToSend)
 
   }
-  
-  res.send(authorsToSend)
+
+  else {
+
+    const authorsCopy = JSON.parse(JSON.stringify(authors));
+
+    for (const author of authorsCopy) {
+
+      const authorQuotes = quotes.filter((quote) => quote.authorId === author.id);
+      author.quotes = authorQuotes;
+      
+    }
+
+    res.send(authorsCopy);
+
+  }
 
 })
   

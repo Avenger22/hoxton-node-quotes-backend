@@ -5,47 +5,15 @@ import {Quote, Author} from '../types/types'
 const router = Router()
 
 // #region 'end points for quotes'
-router.get('/', (req, res) => {
-
-    res.send(
-      
-        `<p style="display:grid; place-items: center; font-size: 26px; color: #000; font-weight: 900;">Welcome to Quotes, use / and arrays for navigation in the backend server</p>
-      
-        <div style = "display: grid; grid-template-rows: repeat(4, 3.33fr); grid-gap: 35px; place-items:center; background-color: #191919; height: 100vh; margin: 0 0; paddig: 0 0; box-sizing: border-box;">
-            
-            <a style="color: #fff; text-decoration: none; font-size: 22px;" href = "/quotes">Go to Quotes</a>
-            
-            <a style="color: #fff; text-decoration: none; font-size: 22px;" href = "/authors">Go to Authors</a>
-
-            <a style="color: #fff; text-decoration: none; font-size: 22px;">
-                If you want to go to individual items just add an number id after / like quotes/1 gets the first quote etc
-            </a>
-
-            <a style="color: #fff; text-decoration: none; font-size: 22px;">
-                If you want to get random object from the array you can have endpoint random-["name of the array"] and you have use it in front end etc
-            </a>
-
-        </div>`
-
-    );
-  
-});
-
-router.get('/db', (req,res) => {
-  const db = {"quotes": quotes, "authors": authors}
-  res.send(db)
-})
-
-router.get('/random', (req, res) => {
-    const randomQuote: Quote = quotes[Math.floor(Math.random() * quotes.length)]
-    res.send(randomQuote);
-});
-
 router.get('/:id', (req, res) => {
 
-    const id = String(req.params.id)
-    const match = quotes.find((quote) => quote.id === Number(id))
+    const id: string = String(req.params.id)
+    const match: Quote = quotes.find((quote) => quote.id === Number(id))
     
+    const author: Author = authors.find((author) => author.id === match.authorId);
+    // @ts-ignore
+    match.author = author;
+
     if (match) {
       res.send(match)
     } 
@@ -58,19 +26,38 @@ router.get('/:id', (req, res) => {
 
 router.get('/', (req, res) => {
 
-  let quotesToSend = quotes
-  let search = req.query.search as string
+  if (req.query.search) {
 
-  if (typeof search === 'string') {
+    let quotesToSend = quotes
+    let search = req.query.search as string
 
-    console.log('Filtering dogs with search:', search);
-    quotesToSend = quotesToSend.filter((quote) =>
-      quote.quote.toUpperCase().includes(search.toUpperCase())
-    );
+    if (typeof search === 'string') {
+
+      console.log('Filtering dogs with search:', search);
+      quotesToSend = quotesToSend.filter((quote) =>
+        quote.quote.toUpperCase().includes(search.toUpperCase())
+      );
+
+    }
+    
+    res.send(quotesToSend)
 
   }
-  
-  res.send(quotesToSend)
+
+  else {
+
+    let quotesCopy = JSON.parse(JSON.stringify(quotes));
+
+    for (const quote of quotesCopy) {
+
+      const author = authors.find((author) => author.id === quote.authorId);
+      quote.author = author;
+      
+    }
+
+    res.send(quotesCopy);
+
+  }
 
 })
 
