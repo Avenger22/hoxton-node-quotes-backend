@@ -1,8 +1,8 @@
 export type Quote = {
-    id: number,
+    id: number
     quote: string,
     authorId: number
-    author?: Author[] | undefined
+    // author?: Author[] 
 }
 
 export type Author = {
@@ -11,5 +11,5 @@ export type Author = {
     lastName: string
     age: number | string
     avatar: string
-    quotes?: Quote[] | undefined
+    // quotes?: Quote[]
 }

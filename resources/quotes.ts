@@ -8,11 +8,13 @@ const router = Router()
 router.get('/:id', (req, res) => {
 
     const id: string = String(req.params.id)
-    const match: Quote = quotes.find((quote) => quote.id === Number(id))
+    const match = quotes.find((quote) => quote.id === Number(id))
     
-    const author: Author = authors.find((author) => author.id === match.authorId);
-    // @ts-ignore
-    match.author = author;
+    // // const quote: Quote & { author: Author } = { ...quote, author }
+
+    // const author: Author = authors.find((author) => author.id === match.authorId);
+    // // @ts-ignore
+    // match.author = author;
 
     if (match) {
       res.send(match)
