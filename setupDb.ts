@@ -6,23 +6,11 @@ const db = new Database('./data.db', {
 });
 
 // #region 'Sql queries for Creating the tables'
-const dropQuotesTable = db.prepare('DROP TABLE quotes;');
-dropQuotesTable.run();
+// const dropQuotesTable = db.prepare('DROP TABLE IF EXISTS quotes;');
+// dropQuotesTable.run();
 
-const dropAuthorsTable = db.prepare('DROP TABLE authors;');
-dropAuthorsTable.run();
-
-const createQuotes = db.prepare(`
-    CREATE TABLE IF NOT EXISTS quotes (
-        id INTEGER,
-        quote TEXT NOT NULL,
-        author_id INTEGER,
-        PRIMARY KEY (id),
-        FOREIGN KEY author_id REFERENCES authors(id)
-    );
-`);
-
-createQuotes.run();
+// const dropAuthorsTable = db.prepare('DROP TABLE IF EXISTS authors;');
+// dropAuthorsTable.run();
 
 const createAuthors = db.prepare(`
     CREATE TABLE IF NOT EXISTS authors (
@@ -36,6 +24,18 @@ const createAuthors = db.prepare(`
 `);
 
 createAuthors.run();
+// FOREIGN KEY (author_id) REFERENCES authors(id)
+
+const createQuotes = db.prepare(`
+    CREATE TABLE IF NOT EXISTS quotes (
+        id INTEGER,
+        quote TEXT NOT NULL,
+        author_id INTEGER,
+        PRIMARY KEY (id)
+    );
+`);
+
+createQuotes.run();
 // #endregion
 
 // #region 'SQL Queries for populating the tables with mockData'
@@ -64,13 +64,14 @@ const deleteAllAuthors = db.prepare(`
 `);
 
 deleteAllQuotes.run();
-deleteAllAuthors.run();
+// deleteAllAuthors.run();
+// #endregion
 
 for (const quote of quotes) {
-  createQuote.run(quote.quote, quote.authorId);
+    console.log("quote", quote)
+  createQuote.run(quote.quote, quote.author_Id);
 }
 
 for (const author of authors) {
   createAuthor.run(author.firstName, author.lastName, author.age, author.avatar);
 }
-// #endregion

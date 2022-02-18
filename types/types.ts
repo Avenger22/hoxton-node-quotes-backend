@@ -1,7 +1,7 @@
 export type Quote = {
     id: number
     quote: string,
-    authorId: number
+    author_Id: number
     // author?: Author[] 
 }
 
