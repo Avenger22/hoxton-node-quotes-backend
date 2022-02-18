@@ -1,21 +1,14 @@
 // #region 'Importing stuff'
 import { Router } from 'express';
-import Database from 'better-sqlite3';
+import { db } from '../setupDb';
+import { createAuthor } from '../setupDb';
 // #endregion
-
-const db = new Database('./data.db', {
-  verbose: console.log,
-});
 
 const router = Router();
 
 // #region 'Sql Queries for endpoints'
 const getAllAuthors = db.prepare(`SELECT * FROM authors;`);
 const getAuthorById = db.prepare(`SELECT * FROM authors WHERE id=?;`);
-
-const createAuthor = db.prepare(`
-  INSERT INTO authors (firstName, lastName, age, avatar) VALUES (?, ?, ?, ?);
-`);
 
 const updateAuthor = db.prepare(`
   UPDATE authors SET firstName = ?, lastName = ?, age = ?, avatar = ? WHERE id=?;
@@ -87,7 +80,7 @@ router.post('/', (req, res) => {
   if (errors.length === 0) {
 
     // create the user on the DB
-    const result = createAuthor.run(firstName, lastName, age, avatar);
+    const result: any = createAuthor.run(firstName, lastName, age, avatar);
 
     // get the user we just created on the DB
     const author = getAuthorById.get(result.lastInsertRowid);

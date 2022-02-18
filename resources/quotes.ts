@@ -1,21 +1,14 @@
 // #region 'Importing Stuff'
 import { Router } from 'express';
-import Database from 'better-sqlite3';
+import { db } from '../setupDb';
+import { createQuote } from '../setupDb';
 // #endregion
-
-const db = new Database('./data.db', {
-  verbose: console.log,
-});
 
 const router = Router()
 
 // #region 'Sql Queries for endpoints'
 const getAllQuotes = db.prepare(`SELECT * FROM quotes;`);
 const getQuoteById = db.prepare(`SELECT * FROM quotes WHERE id=?;`);
-
-const createQuote = db.prepare(`
-  INSERT INTO quotes (quote, author_id) VALUES (?, ?);
-`);
 
 const updateQuote = db.prepare(`
   UPDATE quotes SET quote=? WHERE id=?;
@@ -74,7 +67,7 @@ router.post('/', (req, res) => {
   if (errors.length === 0) {
 
     // create the user on the DB
-    const result = createQuote.run(quoteParam, authorId);
+    const result: any = createQuote.run(quoteParam, authorId);
 
     // get the user we just created on the DB
     const quote = getQuoteById.get(result.lastInsertRowid);
@@ -164,7 +157,7 @@ router.put('/:id', (req, res) => {
   if (errors.length === 0) {
 
     // create the user on the DB
-    const result = createQuote.run(quoteParam, authorId);
+    const result: any = createQuote.run(quoteParam, authorId);
 
     // get the user we just created on the DB
     const quote = getQuoteById.get(result.lastInsertRowid);
