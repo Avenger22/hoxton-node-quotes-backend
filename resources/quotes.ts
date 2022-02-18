@@ -1,8 +1,32 @@
+// #region 'Importing Stuff'
 import { Router } from 'express';
-import {quotes, setQuotes, authors, setAuthors} from '../db/db';
+import {quotes, setQuotes, authors, setAuthors} from '../mockData/mockData';
 import {Quote, Author} from '../types/types'
+import Database from 'better-sqlite3';
+// #endregion
+
+const db = new Database('./data.db', {
+  verbose: console.log,
+});
 
 const router = Router()
+
+// #region 'Sql Queries for endpoints'
+const getAllQuotes = db.prepare(`SELECT * FROM quotes;`);
+const getQuoteById = db.prepare(`SELECT * FROM quotes WHERE id=?;`);
+
+const createQuote = db.prepare(`
+  INSERT INTO quotes (name) VALUES (?);
+`);
+
+const updateQuote = db.prepare(`
+  UPDATE quotes SET quote=? WHERE id=?;
+`);
+
+const deleteQuote = db.prepare(`
+  DELETE FROM quotes WHERE id=?;
+`);
+// #endregion
 
 // #region 'end points for quotes'
 router.get('/:id', (req, res) => {

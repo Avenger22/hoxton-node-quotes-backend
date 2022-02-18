@@ -2,7 +2,7 @@
 import express from 'express';
 import quoteRouter from './resources/quotes';
 import authorRouter from './resources/authors';
-import { quotes, authors } from './db/db';
+import { quotes, authors } from "./mockData/mockData";
 import { Quote, Author } from './types/types'
 
 const app = express();
@@ -13,6 +13,7 @@ app.use(express.json());
 const PORT: number = 8000;
 // #endregion
 
+// #region 'Some general endpoints'
 app.use('/quotes', quoteRouter);
 app.use('/authors', authorRouter);
 
@@ -51,9 +52,12 @@ app.get('/random', (req, res) => {
     const randomQuote: Quote = quotes[Math.floor(Math.random() * quotes.length)]
     res.send(randomQuote);
 });
+// #endregion
 
+// #region 'Console logging the server'
 app.listen(PORT, () => {
     console.log(`Server running on: http://localhost:${PORT}`);
     console.log(`Go to quotes directly: http://localhost:${PORT}/quotes`)
     console.log(`Go to quotes directly: http://localhost:${PORT}/authors`)
 })
+// #endregion
