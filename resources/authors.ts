@@ -1,7 +1,5 @@
 // #region 'Importing stuff'
 import { Router } from 'express';
-import { authors, setAuthors, quotes, setQuotes } from '../mockData/mockData';
-import { Author, Quote } from '../types/types'
 import Database from 'better-sqlite3';
 // #endregion
 
@@ -16,11 +14,11 @@ const getAllAuthors = db.prepare(`SELECT * FROM authors;`);
 const getAuthorById = db.prepare(`SELECT * FROM authors WHERE id=?;`);
 
 const createAuthor = db.prepare(`
-  INSERT INTO authors (name) VALUES (?);
+  INSERT INTO authors (firstName, lastName, age, avatar) VALUES (?, ?, ?, ?);
 `);
 
 const updateAuthor = db.prepare(`
-  UPDATE authors SET quote=? WHERE id=?;
+  UPDATE authors SET firstName = ?, lastName = ?, age = ?, avatar = ? WHERE id=?;
 `);
 
 const deleteAuthor = db.prepare(`
@@ -32,22 +30,32 @@ const deleteAuthor = db.prepare(`
 router.patch('/:id', (req, res) => {
 
   const id = Number(req.params.id);
-  const authorToChange = authors.find((author) => author.id === id);
 
-  if (authorToChange) {
+  const firstName = req.body.firstName;
+  const lastName = req.body.lastName
+  const age = req.body.age
+  const avatar = req.body.avatar
 
-    // we can only change the item if it exists
-    if (typeof req.body.firstName === 'string')  authorToChange.firstName = req.body.firstName;
-    if (typeof req.body.lastName === 'string') authorToChange.lastName = req.body.lastName;
-    if (typeof req.body.avatar === 'string') authorToChange.avatar = req.body.avatar;
-    if (typeof req.body.age === 'number') authorToChange.age = req.body.age;
-    
-    res.send(authorToChange);
+  // check if the id given actually exists
+  const result = getAuthorById.get(id);
 
-  } 
-  
+  // if it does exist:
+  if (result) {
+
+    // change the user in the DB
+    updateAuthor.run(firstName,lastName, age, avatar, id);
+
+    // get the updated user from the DB
+    const updatedAuthor = getAuthorById.get(id);
+
+    // send the updated user back
+    res.send(updatedAuthor);
+
+  }
+
+  // if it doesn't exist:
   else {
-    res.status(404).send({ error: 'author not found, id is now in db.' });
+    res.status(404).send({ error: 'Author does not exist.' });
   }
 
 });
@@ -58,11 +66,7 @@ router.post('/', (req, res) => {
   const avatar = req.body.avatar;
   const lastName = req.body.lastName
   const age = req.body.age
-
   const errors = [];
-
-  const lastQuoteId = Math.max(...quotes.map((quote) => quote.id));
-  const newId = lastQuoteId + 1;
 
   if (typeof firstName !== 'string') {
     errors.push(`FirstName missing or not a string.`);
@@ -82,20 +86,12 @@ router.post('/', (req, res) => {
 
   if (errors.length === 0) {
 
-    const newAuthor: Author = {
-      id: Number(newId),
-      firstName: firstName,
-      lastName: lastName,
-      age: Number(age),
-      avatar: avatar,
-    };
-    
-    authors.push(newAuthor);
+    // create the user on the DB
+    const result = createAuthor.run(firstName, lastName, age, avatar);
 
-    // @ts-ignore
-    // quotes = [...quotes, newQuote]
-
-    res.status(201).send(newAuthor);
+    // get the user we just created on the DB
+    const author = getAuthorById.get(result.lastInsertRowid);
+    res.send(author);
 
   } 
   
@@ -109,34 +105,23 @@ router.get('/', (req, res) => {
 
   if (req.query.search) {
 
-    let authorsToSend = authors
     let search = req.query.search as string
 
     if (typeof search === 'string') {
 
       console.log('Filtering authors with search:', search);
-      authorsToSend = authorsToSend.filter((author) =>
-        author.firstName.toUpperCase().includes(search.toUpperCase())
-      );
+
+      const allAuthors = getAllAuthors.all();
+      res.send(allAuthors)
 
     }
-
-    res.send(authorsToSend)
-
+    
   }
 
   else {
 
-    const authorsCopy = JSON.parse(JSON.stringify(authors));
-
-    for (const author of authorsCopy) {
-
-      const authorQuotes = quotes.filter((quote) => quote.authorId === author.id);
-      author.quotes = authorQuotes;
-      
-    }
-
-    res.send(authorsCopy);
+    const allAuthors = getAllAuthors.all();
+    res.send(allAuthors)
 
   }
 
@@ -145,40 +130,32 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
 
   const id = String(req.params.id)
-  const match = authors.find((author) => author.id === Number(id))
-  
-  if (match) {
-    res.send(match)
+  const author = getAuthorById.get(id);
+
+  if (author) {
+    res.send(author);
   } 
   
   else {
-    res.status(404).send({ error: 'author not found.' })
+    res.status(404).send({ error: 'Author not found.' });
   }
 
 })
   
 router.delete('/:id', (req, res) => {
 
-  // happy path: id is sent and it's a number and we find the dog and we delete the dog
-  // sad path: id is wrong format, or dog not found
-
   // get id
   const id = Number(req.params.id);
+  const result = deleteAuthor.run(id);
 
-  // find dog
-  const match = authors.find((author) => author.id === id);
+  console.log('result:', result);
 
-  // delete dog if it exists
-  if (match) {
-
-    const authorsFilteredDeleted = authors.filter((author) => author.id !== id);
-    setAuthors(authorsFilteredDeleted)
-    res.send(match);
-    
+  if (result.changes !== 0) {
+    res.send({ message: 'User deleted successfully.' });
   } 
-
+  
   else {
-    res.status(404).send({ error: 'Quote not found.' });
+    res.status(404).send({ error: 'User does not exist.' });
   }
 
 });

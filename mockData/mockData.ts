@@ -11,7 +11,7 @@ export function setAuthors(array:Author[]):void {
 export let quotes:Quote[] = [
     {
         id: 1,
-        quote: "Life isn’t about getting and having, it’s about giving and being.",
+        quote: "Life isnt about getting and having, its about giving and being.",
         author_Id: 1
     },
     {
@@ -26,7 +26,7 @@ export let quotes:Quote[] = [
     },
     {
         id: 4,
-        quote: "Two roads diverged in a wood, and I—I took the one less traveled by, And that has made all the difference.",
+        quote: "Two roads diverged in a wood, and i took the one less traveled by, And that has made all the difference.",
         author_Id: 3
     },
     {
@@ -36,12 +36,12 @@ export let quotes:Quote[] = [
     },
     {
         id: 6,
-        quote: "You miss 100% of the shots you don’t take.",
+        quote: "You miss 100% of the shots you dont take.",
         author_Id: 1
     },
     {
         id: 7,
-        quote: "I’ve missed more than 9000 shots in my career. I’ve lost almost 300 games. 26 times I’ve been trusted to take the game winning shot and missed. I’ve failed over and over and over again in my life. And that is why I succeed.",
+        quote: "Ive missed more than 9000 shots in my career. Ive lost almost 300 games. 26 times Ive been trusted to take the game winning shot and missed. Ive failed over and over and over again in my life. And that is why I succeed.",
         author_Id: 2
     },
     {
@@ -61,7 +61,7 @@ export let quotes:Quote[] = [
     },
     {
         id: 11,
-        quote: "Life is what happens to you while you’re busy making other plans.",
+        quote: "Life is what happens to you while youre busy making other plans.",
         author_Id: 3
     }
 ]

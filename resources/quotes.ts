@@ -1,7 +1,5 @@
 // #region 'Importing Stuff'
 import { Router } from 'express';
-import {quotes, setQuotes, authors, setAuthors} from '../mockData/mockData';
-import {Quote, Author} from '../types/types'
 import Database from 'better-sqlite3';
 // #endregion
 
@@ -16,7 +14,7 @@ const getAllQuotes = db.prepare(`SELECT * FROM quotes;`);
 const getQuoteById = db.prepare(`SELECT * FROM quotes WHERE id=?;`);
 
 const createQuote = db.prepare(`
-  INSERT INTO quotes (name) VALUES (?);
+  INSERT INTO quotes (quote, author_id) VALUES (?, ?);
 `);
 
 const updateQuote = db.prepare(`
@@ -29,93 +27,58 @@ const deleteQuote = db.prepare(`
 // #endregion
 
 // #region 'end points for quotes'
-router.get('/:id', (req, res) => {
+router.patch('/:id', (req, res) => {
 
-    const id: string = String(req.params.id)
-    const match = quotes.find((quote) => quote.id === Number(id))
-    
-    // // const quote: Quote & { author: Author } = { ...quote, author }
+  const id = Number(req.params.id);
+  const quote = req.body.quote
+  const author_id = req.body.author_id
 
-    // const author: Author = authors.find((author) => author.id === match.authorId);
-    // // @ts-ignore
-    // match.author = author;
+  // check if the id given actually exists
+  const result = getQuoteById.get(id);
 
-    if (match) {
-      res.send(match)
-    } 
-    
-    else {
-      res.status(404).send({ error: 'Quote not found.' })
-    }
-  
-})
+  // if it does exist:
+  if (result) {
 
-router.get('/', (req, res) => {
+    // change the user in the DB
+    updateQuote.run(quote, author_id);
 
-  if (req.query.search) {
+    // get the updated user from the DB
+    const updatedQuote = getQuoteById.get(id);
 
-    let quotesToSend = quotes
-    let search = req.query.search as string
-
-    if (typeof search === 'string') {
-
-      console.log('Filtering dogs with search:', search);
-      quotesToSend = quotesToSend.filter((quote) =>
-        quote.quote.toUpperCase().includes(search.toUpperCase())
-      );
-
-    }
-    
-    res.send(quotesToSend)
+    // send the updated user back
+    res.send(updatedQuote);
 
   }
 
+  // if it doesn't exist:
   else {
-
-    let quotesCopy = JSON.parse(JSON.stringify(quotes));
-
-    for (const quote of quotesCopy) {
-
-      const author = authors.find((author) => author.id === quote.authorId);
-      quote.author = author;
-      
-    }
-
-    res.send(quotesCopy);
-
+    res.status(404).send({ error: 'Quote does not exist.' });
   }
 
-})
-
+});
+  
 router.post('/', (req, res) => {
 
-  const quote = req.body.quote
+  const quoteParam = req.body.quote
+  const authorId = req.body.author_id
   const errors = [];
 
-  const lastQuoteId = Math.max(...quotes.map((quote) => quote.id));
-  const newId = lastQuoteId + 1;
+  if (typeof quoteParam !== 'string') {
+    errors.push(`quote missing or not a string.`);
+  }
 
-  if (typeof quote !== 'string') {
-    errors.push(`Quote missing or not a string.`);
+  if (typeof authorId !== 'string') {
+    errors.push(`Author Id missing or not a string.`);
   }
 
   if (errors.length === 0) {
 
-    const newQuote: Quote = {
-      id: Number(newId),
-      quote: quote,
-      authorId: 2
-    };
+    // create the user on the DB
+    const result = createQuote.run(quoteParam, authorId);
 
-    // add Quote to our quotes array
-    // (like a memory db, this is forgotten when node restarts)
-    
-    quotes.push(newQuote);
-
-    // @ts-ignore
-    // quotes = [...quotes, newQuote]
-
-    res.status(201).send(newQuote);
+    // get the user we just created on the DB
+    const quote = getQuoteById.get(result.lastInsertRowid);
+    res.send(quote);
 
   } 
   
@@ -124,79 +87,93 @@ router.post('/', (req, res) => {
   }
 
 });
+  
+router.get('/', (req, res) => {
 
+  if (req.query.search) {
+
+    let search = req.query.search as string
+
+    if (typeof search === 'string') {
+
+      console.log('Filtering authors with search:', search);
+
+      const allQuotes = getAllQuotes.all();
+      res.send(allQuotes)
+
+    }
+    
+  }
+
+  else {
+
+    const allQuotes = getAllQuotes.all();
+    res.send(allQuotes)
+
+  }
+
+})
+  
+router.get('/:id', (req, res) => {
+
+  const id = String(req.params.id)
+  const quote = getQuoteById.get(id);
+
+  if (quote) {
+    res.send(quote);
+  } 
+  
+  else {
+    res.status(404).send({ error: 'quote not found.' });
+  }
+
+})
+  
 router.delete('/:id', (req, res) => {
-
-  // happy path: id is sent and it's a number and we find the dog and we delete the dog
-  // sad path: id is wrong format, or dog not found
 
   // get id
   const id = Number(req.params.id);
+  const result = deleteQuote.run(id);
 
-  // find dog
-  const match = quotes.find((quote) => quote.id === id);
+  console.log('result:', result);
 
-  // delete dog if it exists
-  if (match) {
-
-    const quotesFilteredDeleted = quotes.filter((quote) => quote.id !== id);
-    setQuotes(quotesFilteredDeleted)
-    res.send(match);
-    
-  } 
-
-  else {
-    res.status(404).send({ error: 'Quote not found.' });
-  }
-
-});
-
-router.patch('/:id', (req, res) => {
-
-  const id = Number(req.params.id);
-
-  // update keys from an existing resource
-  // we only update existing keys
-  // keys that are not in the resource should be ignored
-  // or we should send the user an error
-  // send back the updated resource
-
-  // happy path: every key given exists and is the right type // ✅
-  // sad path: wrong keys or wrong types provided by user // ❌
-
-  const quoteToChange = quotes.find((quote) => quote.id === id);
-
-  if (quoteToChange) {
-
-    // we can only change the item if it exists
-    if (typeof req.body.quote === 'string') quoteToChange.quote = req.body.quote;
-  
-    res.send(quoteToChange);
-
+  if (result.changes !== 0) {
+    res.send({ message: 'quote deleted successfully.' });
   } 
   
   else {
-    res.status(404).send({ error: 'quote not found, id is now in db.' });
+    res.status(404).send({ error: 'quote does not exist.' });
   }
 
 });
 
 router.put('/:id', (req, res) => {
 
-  const id = Number(req.params.id);
-  const quoteToChange = quotes.find((quote) => quote.id === id);
+  const quoteParam = req.body.quote
+  const authorId = req.body.author_id
+  const errors = [];
 
-  if (quoteToChange) {
+  if (typeof quoteParam !== 'string') {
+    errors.push(`quote missing or not a string.`);
+  }
 
-    // we can only change the item if it exists
-    if (typeof req.body.quote === 'string') quoteToChange.quote = req.body.quote;
-    
-    res.send(quoteToChange);
+  if (typeof authorId !== 'string') {
+    errors.push(`Author Id missing or not a string.`);
+  }
+
+  if (errors.length === 0) {
+
+    // create the user on the DB
+    const result = createQuote.run(quoteParam, authorId);
+
+    // get the user we just created on the DB
+    const quote = getQuoteById.get(result.lastInsertRowid);
+    res.send(quote);
 
   } 
   
   else {
-    res.status(404).send({ error: 'quote not found, id is now in db.' });
+    res.status(400).send({ errors: errors });
   }
 
 });

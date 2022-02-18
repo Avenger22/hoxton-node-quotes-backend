@@ -1,4 +1,4 @@
-// #region 'Importing stuff'
+// #region 'Importing stuff and DB configuration'
 import express from 'express';
 import quoteRouter from './resources/quotes';
 import authorRouter from './resources/authors';
