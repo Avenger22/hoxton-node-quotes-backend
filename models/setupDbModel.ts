@@ -1,6 +1,8 @@
 // #region 'Importing stuff and db configuration'
 import Database from 'better-sqlite3';
-import { authors, quotes } from './mockData/mockData';
+import { authors, quotes } from '../mockData/mockData';
+import {createAuthor} from "../models/AuthorsModel"
+import {createQuote} from "../models/QuotesModel"
 
 export const db = new Database('./data.db', {
     verbose: console.log,
@@ -29,18 +31,9 @@ createAuthors.run();
 createQuotes.run();
 // #endregion
 
+export const joinQuerySql = db.prepare(`SELECT DISTINCT a.id, a.quote, a.author_id, b.firstName, b.lastName, b.age, b.avatar FROM quotes a, authors b WHERE author_id IN (SELECT b.id FROM authors);`);
 const deleteQuote: any = db.prepare(`DELETE FROM authors;`)
 const deleteAuthor:any = db.prepare(`DELETE FROM quotes;`)
-
-// #region 'SQL Queries for populating the tables with mockData'
-export const createQuote: any = (quote: any, author_id: any) => db.prepare(`
-    INSERT INTO quotes (quote, author_id) VALUES (?, ?);
- `).run(quote, author_id)
-
-export const createAuthor: any = (firstName: any, lastName: any, age:any, avatar:any) => db.prepare(`
-    INSERT INTO authors (firstName, lastName, age, avatar) VALUES (?, ?, ?, ?);
-`).run(firstName, lastName, age, avatar)
-// #endregion
 
 // #region 'Looping from mockData to insert them into DB'
 const doStuff = () => {
@@ -61,4 +54,3 @@ const doStuff = () => {
 // #endregion
 
 doStuff()
-// SELECT DISTINCT b.id, b.firstName, b.lastName, b.age, b.avatar,  a.quote FROM quotes a, authors b WHERE author_id IN (SELECT b.id FROM authors WHERE b.firstName = "Kevin");

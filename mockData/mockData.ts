@@ -1,4 +1,4 @@
-import {Quote, Author} from "../types/types"
+import {Quote, Author} from "./types"
 
 export function setQuotes(array:Quote[]):void {
     quotes = array
