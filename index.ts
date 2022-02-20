@@ -20,6 +20,7 @@ app.use('/authors', authorsRoute);
 app.get('/', generalServerController.getHome)
 app.get('/db', generalServerController.getDb)
 app.get('/random', generalServerController.getRandom)
+app.get('/authorsJoin', generalServerController.allAuthorsGetWithJoin)
 // #endregion
 
 // #region 'Console logging the server'

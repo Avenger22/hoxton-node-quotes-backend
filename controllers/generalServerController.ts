@@ -1,5 +1,6 @@
 import {authors, quotes} from "../mockData/mockData"
 import {Quote, Author} from "../mockData/types"
+import {joinQuerySql} from "../setupDbModel"
 
 export const generalServerController = {
 
@@ -41,6 +42,13 @@ export const generalServerController = {
         const randomQuote: Quote = quotes[Math.floor(Math.random() * quotes.length)]
         res.send(randomQuote);
 
+    },
+
+    allAuthorsGetWithJoin: (req: any, res: any) => {
+
+        const resultJoin:any = joinQuerySql.all()
+        res.send(resultJoin)
+        
     }
 
 }

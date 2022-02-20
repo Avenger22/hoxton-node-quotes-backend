@@ -21,7 +21,7 @@ const createQuotes = db.prepare(`
         quote_id INTEGER PRIMARY KEY AUTOINCREMENT,
         quote TEXT NOT NULL,
         author_id INTEGER NOT NULL,
-        FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE SET NULL ON UPDATE CASCADE
+        FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
  `);
 
@@ -31,7 +31,8 @@ createQuotes.run();
 
 // #region 'SQL Queries'
 export const joinQuerySql = db.prepare(`SELECT DISTINCT a.quote_id, a.quote, a.author_id, b.firstName, b.lastName, b.age, b.avatar FROM quotes a, authors b WHERE a.author_id IN (SELECT b.author_id FROM authors);`);
-const deleteQuote: any = db.prepare(`DELETE FROM authors;`)
+
+const deleteQuote:any = db.prepare(`DELETE FROM authors;`)
 const deleteAuthor:any = db.prepare(`DELETE FROM quotes;`)
 
 export const createAuthor = (firstName: string, lastName: string, age:string | number, avatar:string) => db.prepare(`
@@ -52,7 +53,7 @@ const doStuff = () => {
         createAuthor(author.firstName, author.lastName, author.age, author.avatar);
     }
 
-    // deleteQuote.run() 
+    //  deleteQuote.run() 
     // THIS CAUSED THE CONSTRAINT ERROR BECASE NO REF CAN BE FOUND THERE ETC
 
     for (const quote of quotes) {
