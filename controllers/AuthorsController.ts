@@ -5,7 +5,7 @@ import {
 // #region 'Creating controllers logic for routers to use'
 export const authorsController = {
 
-    allAuthorsGet: (req, res) => {
+    allAuthorsGet: (req: any, res: any) => {
         
         if (req.query.search) {
         
@@ -13,7 +13,7 @@ export const authorsController = {
         
             if (typeof search === 'string') {
             
-                const allAuthors = getAllAuthors.all();
+                const allAuthors: any = getAllAuthors.all();
                 res.send(allAuthors)
         
             }
@@ -22,14 +22,14 @@ export const authorsController = {
         
         else {
         
-            const allAuthors = getAllAuthors.all();
+            const allAuthors: any = getAllAuthors.all();
             res.send(allAuthors)
         
         }
         
     },
 
-    individualAuthorGet: (req, res) => {
+    individualAuthorGet: (req: any, res: any) => {
 
         const id = String(req.params.id)
         const author = getAuthorById.get(id);
@@ -44,7 +44,7 @@ export const authorsController = {
 
     },
 
-    individualAuthorDelete: (req, res) => {
+    individualAuthorDelete: (req: any, res: any) => {
 
         const id = Number(req.params.id);
         const result = deleteAuthor.run(id);
@@ -61,7 +61,7 @@ export const authorsController = {
         
     },
 
-    authorPost: (req, res) => {
+    authorPost: (req: any, res: any) => {
 
         const firstName = req.body.firstName;
         const avatar = req.body.avatar;
@@ -88,7 +88,9 @@ export const authorsController = {
         if (errors.length === 0) {
 
             // create the user on the DB
-            const result: any = createAuthor(firstName, lastName, age, avatar);
+
+            // @ts-ignore
+            const result: any = createAuthor.run(firstName, lastName, age, avatar);
 
             // get the user we just created on the DB
             const author = getAuthorById.get(result.lastInsertRowid);
@@ -102,7 +104,7 @@ export const authorsController = {
 
     },
 
-    authorPatch: (req, res) => {
+    authorPatch: (req: any, res: any) => {
 
         const id = Number(req.params.id);
         const firstName = req.body.firstName;

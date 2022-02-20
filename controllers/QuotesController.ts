@@ -5,7 +5,7 @@ import {
 // #region 'Creating controllers logic for routers to use'
 export const quotesController = {
 
-    allQuotesGet: (req, res) => {
+    allQuotesGet: (req: any, res: any) => {
         
         if (req.query.search) {
 
@@ -15,7 +15,7 @@ export const quotesController = {
         
               console.log('Filtering authors with search:', search);
         
-              const allQuotes = getAllQuotes.all();
+              const allQuotes: any = getAllQuotes.all();
               res.send(allQuotes)
         
             }
@@ -24,7 +24,7 @@ export const quotesController = {
         
         else {
     
-        const allQuotes = getAllQuotes.all();
+        const allQuotes: any = getAllQuotes.all();
         // const allQuotesWithJoin = joinQuerySql.all()
         
         console.log(allQuotes)
@@ -34,7 +34,7 @@ export const quotesController = {
         
     },
 
-    individualQuoteGet: (req, res) => {
+    individualQuoteGet: (req: any, res: any) => {
 
         const id = String(req.params.id)
         const quote = getQuoteById.get(id);
@@ -49,7 +49,7 @@ export const quotesController = {
 
     },
 
-    individualQuoteDelete: (req, res) => {
+    individualQuoteDelete: (req: any, res: any) => {
 
         // get id
         const id = Number(req.params.id);
@@ -67,7 +67,7 @@ export const quotesController = {
         
     },
 
-    quotePost: (req, res) => {
+    quotePost: (req: any, res: any) => {
 
         const quoteParam = req.body.quote
         const authorId = req.body.author_id
@@ -84,7 +84,9 @@ export const quotesController = {
         if (errors.length === 0) {
 
             // create the user on the DB
-            const result = createQuote(quoteParam, authorId);
+
+            // @ts-ignore
+            const result = createQuote.run(quoteParam, authorId);
 
             // get the user we just created on the DB
             const quote = getQuoteById.get(result.lastInsertRowid);
@@ -98,7 +100,7 @@ export const quotesController = {
 
     },
 
-    quotePatch: (req, res) => {
+    quotePatch: (req: any, res: any) => {
 
         const id = Number(req.params.id);
         const quote = req.body.quote
@@ -128,7 +130,7 @@ export const quotesController = {
 
     },
 
-    quotePut: (req, res) => {
+    quotePut: (req: any, res: any) => {
 
         const quoteParam = req.body.quote
         const authorId = req.body.author_id

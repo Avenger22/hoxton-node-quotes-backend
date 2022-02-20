@@ -1,10 +1,11 @@
 // #region 'Importing stuff and db configuration'
 import Database from 'better-sqlite3';
+
 import { authors, quotes } from '../mockData/mockData';
 import {createAuthor} from "../models/AuthorsModel"
 import {createQuote} from "../models/QuotesModel"
 
-export const db = new Database('./data.db', {
+export const db = new Database('../database/data.db', {
     verbose: console.log,
 });
 
