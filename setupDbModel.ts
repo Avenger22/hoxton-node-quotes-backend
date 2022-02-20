@@ -8,7 +8,7 @@ export const db = new Database('./data.db', {
 
 const createAuthors = db.prepare(`
     CREATE TABLE IF NOT EXISTS authors (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        author_id INTEGER PRIMARY KEY AUTOINCREMENT,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
         age INTEGER NOT NULL,
@@ -18,10 +18,10 @@ const createAuthors = db.prepare(`
 
 const createQuotes = db.prepare(`
     CREATE TABLE IF NOT EXISTS quotes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        quote_id INTEGER PRIMARY KEY AUTOINCREMENT,
         quote TEXT NOT NULL,
         author_id INTEGER NOT NULL,
-        FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
+        FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE SET NULL ON UPDATE CASCADE
     );
  `);
 
@@ -30,7 +30,7 @@ createQuotes.run();
 // #endregion
 
 // #region 'SQL Queries'
-export const joinQuerySql = db.prepare(`SELECT DISTINCT a.id, a.quote, a.author_id, b.firstName, b.lastName, b.age, b.avatar FROM quotes a, authors b WHERE author_id IN (SELECT b.id FROM authors);`);
+export const joinQuerySql = db.prepare(`SELECT DISTINCT a.quote_id, a.quote, a.author_id, b.firstName, b.lastName, b.age, b.avatar FROM quotes a, authors b WHERE a.author_id IN (SELECT b.author_id FROM authors);`);
 const deleteQuote: any = db.prepare(`DELETE FROM authors;`)
 const deleteAuthor:any = db.prepare(`DELETE FROM quotes;`)
 
