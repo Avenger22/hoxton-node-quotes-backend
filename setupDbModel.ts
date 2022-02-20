@@ -1,11 +1,8 @@
 // #region 'Importing stuff and db configuration'
 import Database from 'better-sqlite3';
+import { authors, quotes } from './mockData/mockData';
 
-import { authors, quotes } from '../mockData/mockData';
-import {createAuthor} from "../models/AuthorsModel"
-import {createQuote} from "../models/QuotesModel"
-
-export const db = new Database('../database/data.db', {
+export const db = new Database('./data.db', {
     verbose: console.log,
 });
 
@@ -24,7 +21,7 @@ const createQuotes = db.prepare(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         quote TEXT NOT NULL,
         author_id INTEGER NOT NULL,
-        FOREIGN KEY (author_id) REFERENCES authors(id)
+        FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
     );
  `);
 
@@ -32,20 +29,31 @@ createAuthors.run();
 createQuotes.run();
 // #endregion
 
+// #region 'SQL Queries'
 export const joinQuerySql = db.prepare(`SELECT DISTINCT a.id, a.quote, a.author_id, b.firstName, b.lastName, b.age, b.avatar FROM quotes a, authors b WHERE author_id IN (SELECT b.id FROM authors);`);
 const deleteQuote: any = db.prepare(`DELETE FROM authors;`)
 const deleteAuthor:any = db.prepare(`DELETE FROM quotes;`)
 
+export const createAuthor = (firstName: string, lastName: string, age:string | number, avatar:string) => db.prepare(`
+    INSERT INTO authors (firstName, lastName, age, avatar) VALUES (?, ?, ?, ?);
+`).run(firstName, lastName, age, avatar)
+
+export const createQuote = (quote: string, author_id: number) => db.prepare(`
+    INSERT INTO quotes (quote, author_id) VALUES (?, ?);
+ `).run(quote, author_id)
+// #endregion
+
 // #region 'Looping from mockData to insert them into DB'
 const doStuff = () => {
 
-    // deleteAuthor.run()
+    deleteAuthor.run()
 
     for (const author of authors) {
         createAuthor(author.firstName, author.lastName, author.age, author.avatar);
     }
 
-    // deleteQuote.run()
+    // deleteQuote.run() 
+    // THIS CAUSED THE CONSTRAINT ERROR BECASE NO REF CAN BE FOUND THERE ETC
 
     for (const quote of quotes) {
         createQuote(quote.quote, quote.author_Id)

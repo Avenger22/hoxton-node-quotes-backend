@@ -1,6 +1,8 @@
 import {
-    getAllQuotes, getQuoteById, deleteQuote, updateQuote, createQuote
+    getAllQuotes, getQuoteById, deleteQuote, updateQuote
 } from "../models/QuotesModel"
+
+import { createQuote } from "../setupDbModel"
 
 // #region 'Creating controllers logic for routers to use'
 export const quotesController = {
@@ -113,7 +115,7 @@ export const quotesController = {
         if (result) {
 
             // change the user in the DB
-            updateQuote.run(quote, author_id);
+            updateQuote.run(quote, author_id, id);
 
             // get the updated user from the DB
             const updatedQuote = getQuoteById.get(id);

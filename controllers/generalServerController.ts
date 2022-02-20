@@ -3,7 +3,7 @@ import {Quote, Author} from "../mockData/types"
 
 export const generalServerController = {
 
-    getHome: (req, res) => {
+    getHome: (req: any, res: any) => {
 
         res.send(
       
@@ -29,14 +29,14 @@ export const generalServerController = {
 
     },
 
-    getDb: (req, res) => {
+    getDb: (req: any, res: any) => {
 
         const db = {"quotes": quotes, "authors": authors}
         res.send(db)
 
     },
 
-    getRandom: (req, res) => {
+    getRandom: (req: any, res: any) => {
 
         const randomQuote: Quote = quotes[Math.floor(Math.random() * quotes.length)]
         res.send(randomQuote);

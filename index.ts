@@ -1,8 +1,8 @@
 // #region 'Importing stuff and DB configuration'
 import express from 'express';
-import quotesRoute from '../routes/QuotesRoute';
-import authorsRoute from '../routes/AuthorsRoute';
-import {generalServerController} from "../controllers/generalServerController"
+import quotesRoute from './routes/QuotesRoute';
+import authorsRoute from './routes/AuthorsRoute';
+import {generalServerController} from "./controllers/generalServerController"
 
 const app = express();
 const cors = require('cors');

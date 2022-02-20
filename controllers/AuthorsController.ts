@@ -1,6 +1,8 @@
 import {
-    getAllAuthors, getAuthorById, deleteAuthor, updateAuthor, createAuthor
+    getAllAuthors, getAuthorById, deleteAuthor, updateAuthor
 } from '../models/AuthorsModel'
+
+import { createAuthor } from '../setupDbModel'
 
 // #region 'Creating controllers logic for routers to use'
 export const authorsController = {
