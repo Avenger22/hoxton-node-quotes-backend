@@ -23,7 +23,7 @@ export const authorsController = {
 
     individualAuthorGet: (req: any, res: any) => {
 
-        const id = String(req.params.id)
+        const id = Number(req.params.id)
         const author = getAuthorById.get(id);
         
         const quotes = getQuotesForAuthor.all(author.author_id);

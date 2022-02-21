@@ -1,5 +1,5 @@
 import {
-    getAllQuotes, getQuoteById, deleteQuote, updateQuote
+    getAllQuotes, getQuoteById, deleteQuote, updateQuote, deleteAuthorsQuotes
 } from "../models/QuotesModel"
 
 import {
@@ -26,10 +26,10 @@ export const quotesController = {
 
     individualQuoteGet: (req: any, res: any) => {
 
-        const id = String(req.params.id)
-        const quote = getQuoteById.get(id);
+        const id = req.params.id
 
-        const author = getAuthorById.get(quote.author_id);
+        const quote = getQuoteById.get(id);
+        const author = getAuthorById.get(quote.quote_id);
         quote.author = author;
       
         if (quote) {
@@ -46,9 +46,11 @@ export const quotesController = {
 
         // get id
         const id = Number(req.params.id);
+        deleteAuthorsQuotes.run(id)
+
         const result = deleteQuote.run(id);
 
-        console.log('result:', result);
+        // console.log('result:', result);
 
         if (result.changes !== 0) {
             res.send({ message: 'quote deleted successfully.' });
