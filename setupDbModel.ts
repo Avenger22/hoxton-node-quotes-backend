@@ -6,6 +6,11 @@ export const db = new Database('./data.db', {
     verbose: console.log,
 });
 
+const dropAuthors = db.prepare(`DROP TABLE IF EXISTS authors;`)
+const dropQuotes = db.prepare(`DROP TABLE IF EXISTS quotes;`)
+
+dropAuthors.run()
+dropQuotes.run()
 const createAuthors = db.prepare(`
     CREATE TABLE IF NOT EXISTS authors (
         author_id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,5 +1,6 @@
 import {
-    getAllAuthors, getAuthorById, deleteAuthor, updateAuthor
+    getAllAuthors, getAuthorById, deleteAuthor, 
+    updateAuthor, getQuotesForAuthor
 } from '../models/AuthorsModel'
 
 import { createAuthor } from '../setupDbModel'
@@ -8,26 +9,15 @@ import { createAuthor } from '../setupDbModel'
 export const authorsController = {
 
     allAuthorsGet: (req: any, res: any) => {
-        
-        if (req.query.search) {
-        
-            let search = req.query.search as string
-        
-            if (typeof search === 'string') {
-            
-                const allAuthors: any = getAllAuthors.all();
-                res.send(allAuthors)
-        
-            }
-            
+                 
+        const authors: any = getAllAuthors.all();
+
+        for (const author of authors) {
+            const quotes = getQuotesForAuthor.all(author.author_id);
+            author.quotes = quotes;
         }
-        
-        else {
-        
-            const allAuthors: any = getAllAuthors.all();
-            res.send(allAuthors)
-        
-        }
+
+        res.send(authors)
         
     },
 
@@ -35,6 +25,9 @@ export const authorsController = {
 
         const id = String(req.params.id)
         const author = getAuthorById.get(id);
+        
+        const quotes = getQuotesForAuthor.all(author.author_id);
+        author.quotes = quotes;
 
         if (author) {
             res.send(author);

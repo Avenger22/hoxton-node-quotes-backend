@@ -2,44 +2,35 @@ import {
     getAllQuotes, getQuoteById, deleteQuote, updateQuote
 } from "../models/QuotesModel"
 
+import {
+    getAuthorById
+} from "../models/AuthorsModel"
+
 import { createQuote } from "../setupDbModel"
 
 // #region 'Creating controllers logic for routers to use'
 export const quotesController = {
 
     allQuotesGet: (req: any, res: any) => {
-        
-        if (req.query.search) {
+    
+        const quotes: any = getAllQuotes.all();
 
-            let search = req.query.search as string
-        
-            if (typeof search === 'string') {
-        
-              console.log('Filtering authors with search:', search);
-        
-              const allQuotes: any = getAllQuotes.all();
-              res.send(allQuotes)
-        
-            }
-            
+        for (const quote of quotes) {
+            const author = getAuthorById.get(quote.author_id);
+            quote.author = author;
         }
-        
-        else {
-    
-        const allQuotes: any = getAllQuotes.all();
-        // const allQuotesWithJoin = joinQuerySql.all()
-        
-        console.log(allQuotes)
-        res.send(allQuotes)
-    
-        }
-        
+
+        res.send(quotes)
+
     },
 
     individualQuoteGet: (req: any, res: any) => {
 
         const id = String(req.params.id)
         const quote = getQuoteById.get(id);
+
+        const author = getAuthorById.get(quote.author_id);
+        quote.author = author;
       
         if (quote) {
           res.send(quote);
